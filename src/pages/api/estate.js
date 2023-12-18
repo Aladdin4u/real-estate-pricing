@@ -13,21 +13,47 @@ export default async function handler(req, res) {
         "real_estate_model",
         "mindsdb"
       );
-  
+
       let queryOptions = {
         // Join model to this data source.
         join: "files.real_estate",
-        where: [`t.state = "${state}"`, `t.town = "${town}"`, `t.bedrooms = "${bedrooms}"`,`t.toilets = "${toilets}"`,`t.parking_space = "${parking_space}"`],
+        where: [
+          `t.state = "${state}"`,
+          `t.town = "${town}"`,
+          `t.bedrooms = "${bedrooms}"`,
+          `t.toilets = "${toilets}"`,
+          `t.parking_space = "${parking_space}"`,
+        ],
       };
-  
-      const real_estate_predictor = await real_estate_model.batchQuery(queryOptions);
+
+      const real_estate_predictor = await real_estate_model.batchQuery(
+        queryOptions
+      );
       res.status(201).json(real_estate_predictor);
     } catch (error) {
       // Failed to authenticate.
       console.log(error);
-      throw(error);
+      throw error;
     }
+  } else {
+    try {
+      const query = `SELECT * FROM files.real_estate`;
+      await MindsDB.connect({
+        user: process.env.MINDDB_USER,
+        password: process.env.MINDDB_PASS,
+      });
 
-    
+      const queryResult = await MindsDB.SQL.runQuery(query);
+
+      if (queryResult.rows.length > 0) {
+        res.status(201).json(queryResult.rows);
+      } else {
+        res.status(201).json({ rows: "no data found" });
+      }
+    } catch (error) {
+      // Failed to authenticate.
+      console.log(error);
+      throw error;
+    }
   }
 }
