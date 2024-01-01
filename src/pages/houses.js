@@ -154,9 +154,9 @@ export default function House({ className, ...props }) {
   const currentItems = data.slice(startIndex, endIndex);
   const form = useForm({
     defaultValues: {
-      bedrooms: "",
-      toilets: "",
-      parking_space: "",
+      bedrooms: 5,
+      toilets: 6,
+      parking_space: 5,
       town: "",
       state: "",
     },
@@ -186,12 +186,17 @@ export default function House({ className, ...props }) {
               >
                 <FormField
                   control={form.control}
+                  rules={{ required: "This field is required", min: 1 }}
                   name="bedrooms"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Bed Rooms</FormLabel>
                       <FormControl>
-                        <Input placeholder="bedsrooms" {...field} />
+                        <Input
+                          type="number"
+                          placeholder="bedsrooms"
+                          {...field}
+                        />
                       </FormControl>
                       <FormDescription>
                         Total Bed Rooms within a block.
@@ -202,12 +207,13 @@ export default function House({ className, ...props }) {
                 />
                 <FormField
                   control={form.control}
+                  rules={{ required: "This field is required", min: 1 }}
                   name="toilets"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Toilets</FormLabel>
                       <FormControl>
-                        <Input placeholder="toilets" {...field} />
+                        <Input type="number" placeholder="toilets" {...field} />
                       </FormControl>
                       <FormDescription>
                         Total Toilets within a block.
@@ -218,12 +224,17 @@ export default function House({ className, ...props }) {
                 />
                 <FormField
                   control={form.control}
+                  rules={{ required: "This field is required", min: 1 }}
                   name="parking_space"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Garage</FormLabel>
                       <FormControl>
-                        <Input placeholder="Parking Space" {...field} />
+                        <Input
+                          type="number"
+                          placeholder="Parking Space"
+                          {...field}
+                        />
                       </FormControl>
                       <FormDescription>
                         Total Parking Space within a block.
@@ -234,6 +245,7 @@ export default function House({ className, ...props }) {
                 />
                 <FormField
                   control={form.control}
+                  rules={{ required: "This field is required" }}
                   name="town"
                   render={({ field }) => (
                     <FormItem>
@@ -251,6 +263,7 @@ export default function House({ className, ...props }) {
                 <FormField
                   control={form.control}
                   name="state"
+                  rules={{ required: "This field is required" }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>State</FormLabel>
