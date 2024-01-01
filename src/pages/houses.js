@@ -1,89 +1,325 @@
+import { useState } from "react";
 import Image from "next/image";
 import { Inter } from "next/font/google";
-
+import { cn } from "@/lib/utils";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 const inter = Inter({ subsets: ["latin"] });
-
-export default function House() {
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+const houses = [
+  {
+    id: 1,
+    bedrooms: 6,
+    bathrooms: 5,
+    toilets: 5,
+    parking_space: 4,
+    title: "Detached Duplex",
+    town: "Mabushi",
+    state: "Abuja",
+    price: 450000000,
+  },
+  {
+    id: 2,
+    bedrooms: 4,
+    bathrooms: 5,
+    toilets: 5,
+    parking_space: 4,
+    title: "Terraced Duplexes",
+    town: "Katampe",
+    state: "Abuja",
+    price: 800000000,
+  },
+  {
+    id: 3,
+    bedrooms: 4,
+    bathrooms: 5,
+    toilets: 5,
+    parking_space: 4,
+    title: "Detached Duplex",
+    town: "Lekki",
+    state: "Lagos",
+    price: 120000000,
+  },
+  {
+    id: 4,
+    bedrooms: 4,
+    bathrooms: 4,
+    toilets: 5,
+    parking_space: 6,
+    title: "Detached Duplex",
+    town: "Ajah",
+    state: "Lagos",
+    price: 40000000,
+  },
+  {
+    id: 5,
+    bedrooms: 4,
+    bathrooms: 4,
+    toilets: 5,
+    parking_space: 2,
+    title: "Semi Detached Duplex",
+    town: "Lekki",
+    state: "Lagos",
+    price: 75000000,
+  },
+  {
+    id: 6,
+    bedrooms: 5,
+    bathrooms: 5,
+    toilets: 6,
+    parking_space: 1,
+    title: "Detached Duplex",
+    town: "Lekki",
+    state: "Lagos",
+    price: 450000000,
+  },
+  {
+    id: 7,
+    bedrooms: 4,
+    bathrooms: 5,
+    toilets: 5,
+    parking_space: 4,
+    title: "Detached Duplex",
+    town: "Lekki",
+    state: "Lagos",
+    price: 65000000,
+  },
+  {
+    id: 8,
+    bedrooms: 2,
+    bathrooms: 2,
+    toilets: 3,
+    parking_space: 6,
+    title: "Detached Bungalow",
+    town: "Epe",
+    state: "Lagos",
+    price: 12000000,
+  },
+  {
+    id: 9,
+    bedrooms: 1,
+    bathrooms: 1,
+    toilets: 1,
+    parking_space: 1,
+    title: "Detached Duplex",
+    town: "Lekki",
+    state: "Lagos",
+    price: 200000000,
+  },
+  {
+    id: 10,
+    bedrooms: 4,
+    bathrooms: 4,
+    toilets: 5,
+    parking_space: 5,
+    title: "Detached Duplex",
+    town: "Ajah",
+    state: "Lagos",
+    price: 60000000,
+  },
+];
+export default function House({ className, ...props }) {
+  const [data, setData] = useState(houses);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(4);
+  const totalPages = Math.ceil(data.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentItems = data.slice(startIndex, endIndex);
+  const form = useForm({
+    defaultValues: {
+      bedrooms: "",
+      toilets: "",
+      parking_space: "",
+      town: "",
+      state: "",
+    },
+  });
+  function onSubmit(values) {
+    // Do something with the form values.
+    // ✅ This will be type-safe and validated.
+    console.log(values);
+  }
   return (
     <main
       className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
     >
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Discover and deploy boilerplate example Next.js&nbsp;projects.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+      <Card className={cn("w-[380px]", className)} {...props}>
+        <CardHeader>
+          <CardTitle>Real Estate Price</CardTitle>
+          <CardDescription>
+            Enter the attributes of the housing.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <div className=" flex items-center space-x-4 rounded-md border p-4">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-8"
+              >
+                <FormField
+                  control={form.control}
+                  name="bedrooms"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Bed Rooms</FormLabel>
+                      <FormControl>
+                        <Input placeholder="bedsrooms" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Total Bed Rooms within a block.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="toilets"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Toilets</FormLabel>
+                      <FormControl>
+                        <Input placeholder="toilets" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Total Toilets within a block.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="parking_space"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Garage</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Parking Space" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Total Parking Space within a block.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="town"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Town</FormLabel>
+                      <FormControl>
+                        <Input placeholder="town" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        House Local Goverment Address.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="state"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>State</FormLabel>
+                      <FormControl>
+                        <Input placeholder="State" {...field} />
+                      </FormControl>
+                      <FormDescription>House State Address.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit">Submit</Button>
+              </form>
+            </Form>
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button className="w-full">Mark all as read</Button>
+        </CardFooter>
+      </Card>
+      <h2>Browse houses</h2>
+      <div className="mb-32 grid text-center gap-4 lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-3 lg:text-left">
+        {currentItems.map((r, index) => {
+          return (
+            <Card key={index} className="w-auto">
+              <CardHeader>
+                <CardTitle>{r.title}</CardTitle>
+                <CardDescription>
+                  Lorem ipsum {r.bathrooms} dolor sit amet consectetur
+                  adipisicing elit. Ipsam quae consequuntur optio ratione
+                  corrupti hic sapiente, unde non nisi magni quaerat magnam iste
+                  rem est, in qui quas minima itaque.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p>
+                  {r.town}, {r.state}
+                </p>
+                <div className="space-x-4">
+                  <span className="text-sm font-medium leading-none">
+                    {r.bedrooms} Beds
+                  </span>
+                  <span className="text-sm font-medium leading-none">
+                    {r.toilets} Baths
+                  </span>
+                  <span className="text-sm font-medium leading-none">
+                    {r.parking_space} Garage
+                  </span>
+                </div>
+              </CardContent>
+              <CardFooter>
+                <div className="text-left">
+                  <p className="text-sm">price</p>
+                  <p className="text-sm font-bold leading-none">
+                    N{r.price}/mo
+                  </p>
+                </div>
+              </CardFooter>
+            </Card>
+          );
+        })}
       </div>
     </main>
   );
 }
 
-export async function getStaticProps() {
-  const res = await fetch('http://localhost:3000/api/estate');
-  const repo = await res.json()
-  console.log(repo);
-  return { props: { repo } }
-}
+// export async function getStaticProps() {
+//   const res = await fetch('http://localhost:3000/api/estate');
+//   const repo = await res.json()
+//   // console.log(repo);
+//   return { props: { repo } }
+// }
