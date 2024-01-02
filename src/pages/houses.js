@@ -40,10 +40,10 @@ export default function House({ houses, className, ...props }) {
   const [data, setData] = useState(houses);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(9);
-  const totalPages = Math.ceil(data.totals.count / itemsPerPage);
+  const totalPages = Math.ceil(data?.totals[0].count / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentItems = data.rows.slice(startIndex, endIndex);
+  const currentItems = data?.rows?.slice(startIndex, endIndex) || [];
 
   let pages = [];
   for (let i = 1; i <= 5; i++) {
@@ -81,8 +81,8 @@ export default function House({ houses, className, ...props }) {
     }
   };
 
-  const handleSinglePage = async (page) => {
-    // e.preventDefault();
+  const handleSinglePage = async (e, page) => {
+    e.preventDefault();
     try {
       const data = await fetch(`http://localhost:3000/api/estate?page=${page}`);
       setData(data);
@@ -105,15 +105,24 @@ export default function House({ houses, className, ...props }) {
       state: "",
     },
   });
-  function onSubmit(values) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+  async function onSubmit(values) {
+    const data = await fetch("http://localhost:3000/api/estate", {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(values),
+    });
+    const result = await data.json();
+    console.log(values, result);
   }
   return (
     <main
       className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
     >
+
+      {isClient ? (
+        <>
       <Card className={cn("w-md", className)} {...props}>
         <CardHeader>
           <CardTitle>Real Estate Price</CardTitle>
@@ -261,88 +270,124 @@ export default function House({ houses, className, ...props }) {
         </CardContent>
         <CardFooter>&copy; Real Estate Forcast</CardFooter>
       </Card>
+          {currentItems.length > 1 && (
+            <>
+              <h2 className="my-4 self-start text-2xl font-medium">
+                Best for you
+              </h2>
+              <div className="mb-32 grid text-center gap-4 lg:w-full lg:mb-0 lg:grid-cols-3 lg:text-left">
+                {currentItems.length > 1 &&
+                  currentItems.map((r, index) => {
+                    return (
+                      <Card key={index} className="w-auto">
+                        <CardHeader>
+                          <CardTitle className="text-left">{r.title}</CardTitle>
+                          <CardDescription className="text-left space-y-2">
+                            <span className="flex items-center gap-2">
+                              <FaLocationDot />
+                              {r.town}, {r.state}
+                            </span>
+                            <span className="block flex space-x-4">
+                              <span className="flex gap-2 text-sm font-medium leading-none">
+                                <FaBed />
+                                {r.bedrooms} Beds
+                              </span>
+                              <span className="flex gap-2 text-sm font-medium leading-none">
+                                <FaBath />
+                                {r.toilets} Baths
+                              </span>
+                              <span className="flex gap-2 text-sm font-medium leading-none">
+                                <FaCar />
+                                {r.parking_space} Garage
+                              </span>
+                            </span>
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="text-justify">
+                          Lorem ipsum {r.bathrooms} dolor sit amet consectetur
+                          adipisicing elit. Ipsam quae consequuntur optio
+                          ratione corrupti hic sapiente, unde non nisi magni
+                          quaerat magnam iste rem est, in qui quas minima
+                          itaque.
+                        </CardContent>
+                        <CardFooter>
+                          <div className="text-left">
+                            <span className="text-sm">price</span>
+                            <p className="text-sm font-bold leading-none">
+                              &#8358;{r.price}/mo
+                            </p>
+                          </div>
+                        </CardFooter>
+                      </Card>
+                    );
+                  })}
+              </div>
 
-      {isClient ? (
-        <>
-          <h2 className="my-4 self-start text-2xl font-medium">Best for you</h2>
-          <div className="mb-32 grid text-center gap-4 lg:w-full lg:mb-0 lg:grid-cols-3 lg:text-left">
-            {currentItems &&
-              currentItems.map((r, index) => {
-                return (
-                  <Card key={index} className="w-auto">
-                    <CardHeader>
-                      <CardTitle className="text-left">{r.title}</CardTitle>
-                      <CardDescription className="text-left space-y-2">
-                        <span className="flex items-center gap-2">
-                          <FaLocationDot />
-                          {r.town}, {r.state}
-                        </span>
-                        <span className="block flex space-x-4">
-                          <span className="flex gap-2 text-sm font-medium leading-none">
-                            <FaBed />
-                            {r.bedrooms} Beds
-                          </span>
-                          <span className="flex gap-2 text-sm font-medium leading-none">
-                            <FaBath />
-                            {r.toilets} Baths
-                          </span>
-                          <span className="flex gap-2 text-sm font-medium leading-none">
-                            <FaCar />
-                            {r.parking_space} Garage
-                          </span>
-                        </span>
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="text-justify">
-                      Lorem ipsum {r.bathrooms} dolor sit amet consectetur
-                      adipisicing elit. Ipsam quae consequuntur optio ratione
-                      corrupti hic sapiente, unde non nisi magni quaerat magnam
-                      iste rem est, in qui quas minima itaque.
-                    </CardContent>
-                    <CardFooter>
-                      <div className="text-left">
-                        <span className="text-sm">price</span>
-                        <p className="text-sm font-bold leading-none">
-                          &#8358;{r.price}/mo
-                        </p>
-                      </div>
-                    </CardFooter>
-                  </Card>
-                );
-              })}
-          </div>
+              <Pagination className="mt-2">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href=""
+                      className={`${
+                        currentPage <= 1 ? "cursor-not-allowed" : ""
+                      }`}
+                      onClick={() => handlePrevPage()}
+                    />
+                  </PaginationItem>
 
-          <Pagination className="mt-2">
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  href=""
-                  disabled={currentPage < totalPages && currentPage === 1}
-                  onClick={() => handlePrevPage()}
-                />
-              </PaginationItem>
-
-              <PaginationItem className="flex">
-                {pages.map((page, idx) => (
-                  <PaginationLink
-                    key={idx}
-                    href=""
-                    disabled={currentPage === totalPages}
-                    isActive={currentPage === page}
-                    onClick={handleSinglePage(page)}
-                  >
-                    {page}
-                  </PaginationLink>
-                ))}
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext href="" onClick={() => handleNextPage()} />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+                  <PaginationItem className="flex">
+                    {pages.map((page, idx) => (
+                      <PaginationLink
+                        key={idx}
+                        href=""
+                        isActive={currentPage === page}
+                        onClick={(e) => handleSinglePage(e, page)}
+                      >
+                        {page}
+                      </PaginationLink>
+                    ))}
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationNext
+                      href=""
+                      className={`${
+                        currentPage === totalPages ? "cursor-not-allowed" : ""
+                      }`}
+                      onClick={() => handleNextPage()}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </>
+          )}
         </>
       ) : (
-        <span>loading</span>
+        <Button
+          type="button"
+          className="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-white transition ease-in-out duration-150 cursor-not-allowed"
+        >
+          <svg
+            className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            ></circle>
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+          Loading...
+        </Button>
       )}
     </main>
   );
