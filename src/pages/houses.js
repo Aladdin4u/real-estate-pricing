@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { Inter } from "next/font/google";
 import { cn } from "@/lib/utils";
@@ -34,126 +34,68 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FaBath, FaCar, FaBed } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
-const houses = [
-  {
-    id: 1,
-    bedrooms: 6,
-    bathrooms: 5,
-    toilets: 5,
-    parking_space: 4,
-    title: "Detached Duplex",
-    town: "Mabushi",
-    state: "Abuja",
-    price: 450000000,
-  },
-  {
-    id: 2,
-    bedrooms: 4,
-    bathrooms: 5,
-    toilets: 5,
-    parking_space: 4,
-    title: "Terraced Duplexes",
-    town: "Katampe",
-    state: "Abuja",
-    price: 800000000,
-  },
-  {
-    id: 3,
-    bedrooms: 4,
-    bathrooms: 5,
-    toilets: 5,
-    parking_space: 4,
-    title: "Detached Duplex",
-    town: "Lekki",
-    state: "Lagos",
-    price: 120000000,
-  },
-  {
-    id: 4,
-    bedrooms: 4,
-    bathrooms: 4,
-    toilets: 5,
-    parking_space: 6,
-    title: "Detached Duplex",
-    town: "Ajah",
-    state: "Lagos",
-    price: 40000000,
-  },
-  {
-    id: 5,
-    bedrooms: 4,
-    bathrooms: 4,
-    toilets: 5,
-    parking_space: 2,
-    title: "Semi Detached Duplex",
-    town: "Lekki",
-    state: "Lagos",
-    price: 75000000,
-  },
-  {
-    id: 6,
-    bedrooms: 5,
-    bathrooms: 5,
-    toilets: 6,
-    parking_space: 1,
-    title: "Detached Duplex",
-    town: "Lekki",
-    state: "Lagos",
-    price: 450000000,
-  },
-  {
-    id: 7,
-    bedrooms: 4,
-    bathrooms: 5,
-    toilets: 5,
-    parking_space: 4,
-    title: "Detached Duplex",
-    town: "Lekki",
-    state: "Lagos",
-    price: 65000000,
-  },
-  {
-    id: 8,
-    bedrooms: 2,
-    bathrooms: 2,
-    toilets: 3,
-    parking_space: 6,
-    title: "Detached Bungalow",
-    town: "Epe",
-    state: "Lagos",
-    price: 12000000,
-  },
-  {
-    id: 9,
-    bedrooms: 1,
-    bathrooms: 1,
-    toilets: 1,
-    parking_space: 1,
-    title: "Detached Duplex",
-    town: "Lekki",
-    state: "Lagos",
-    price: 200000000,
-  },
-  {
-    id: 10,
-    bedrooms: 4,
-    bathrooms: 4,
-    toilets: 5,
-    parking_space: 5,
-    title: "Detached Duplex",
-    town: "Ajah",
-    state: "Lagos",
-    price: 60000000,
-  },
-];
-export default function House({ className, ...props }) {
+
+export default function House({ houses, className, ...props }) {
+  const [isClient, setIsClient] = useState(false);
   const [data, setData] = useState(houses);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(4);
-  const totalPages = Math.ceil(data.length / itemsPerPage);
+  const [itemsPerPage, setItemsPerPage] = useState(9);
+  const totalPages = Math.ceil(data.totals.count / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentItems = data.slice(startIndex, endIndex);
+  const currentItems = data.rows.slice(startIndex, endIndex);
+
+  let pages = [];
+  for (let i = 1; i <= 5; i++) {
+    pages.push(i);
+  }
+  const handleNextPage = async (e) => {
+    e.preventDefault();
+    if (currentPage < totalPages) {
+      const pageNumber = currentPage + 1;
+      try {
+        const data = await fetch(
+          `http://localhost:3000/api/estate?page=${pageNumber}`
+        );
+        setData(data);
+        setCurrentPage(currentPage + 1);
+      } catch (error) {
+        throw error;
+      }
+    }
+  };
+
+  const handlePrevPage = async (e) => {
+    e.preventDefault();
+    if (currentPage > 1) {
+      const pageNumber = currentPage - 1;
+      try {
+        const data = await fetch(
+          `http://localhost:3000/api/estate?page=${pageNumber}`
+        );
+        setData(data);
+        setCurrentPage(currentPage - 1);
+      } catch (error) {
+        throw error;
+      }
+    }
+  };
+
+  const handleSinglePage = async (page) => {
+    // e.preventDefault();
+    try {
+      const data = await fetch(`http://localhost:3000/api/estate?page=${page}`);
+      setData(data);
+      setCurrentPage(page);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const form = useForm({
     defaultValues: {
       bedrooms: 5,
@@ -317,63 +259,97 @@ export default function House({ className, ...props }) {
             </Form>
           </div>
         </CardContent>
-        <CardFooter>
-          &copy; Real Estate Forcast
-        </CardFooter>
+        <CardFooter>&copy; Real Estate Forcast</CardFooter>
       </Card>
-      <h2 className="my-4 self-start text-2xl font-medium">Best for you</h2>
-      <div className="mb-32 grid text-center gap-4 lg:w-full lg:mb-0 lg:grid-cols-3 lg:text-left">
-        {currentItems.map((r, index) => {
-          return (
-            <Card key={index} className="w-auto">
-              <CardHeader>
-                <CardTitle className="text-left">{r.title}</CardTitle>
-                <CardDescription className="text-left space-y-2">
-                  <span className="flex items-center gap-2">
-                    <FaLocationDot />
-                    {r.town}, {r.state}
-                  </span>
-                  <span className="block flex space-x-4">
-                    <span className="flex gap-2 text-sm font-medium leading-none">
-                      <FaBed />
-                      {r.bedrooms} Beds
-                    </span>
-                    <span className="flex gap-2 text-sm font-medium leading-none">
-                      <FaBath />
-                      {r.toilets} Baths
-                    </span>
-                    <span className="flex gap-2 text-sm font-medium leading-none">
-                      <FaCar />
-                      {r.parking_space} Garage
-                    </span>
-                  </span>
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-justify">
-                Lorem ipsum {r.bathrooms} dolor sit amet consectetur adipisicing
-                elit. Ipsam quae consequuntur optio ratione corrupti hic
-                sapiente, unde non nisi magni quaerat magnam iste rem est, in
-                qui quas minima itaque.
-              </CardContent>
-              <CardFooter>
-                <div className="text-left">
-                  <span className="text-sm">price</span>
-                  <p className="text-sm font-bold leading-none">
-                    &#8358;{r.price}/mo
-                  </p>
-                </div>
-              </CardFooter>
-            </Card>
-          );
-        })}
-      </div>
+
+      {isClient ? (
+        <>
+          <h2 className="my-4 self-start text-2xl font-medium">Best for you</h2>
+          <div className="mb-32 grid text-center gap-4 lg:w-full lg:mb-0 lg:grid-cols-3 lg:text-left">
+            {currentItems &&
+              currentItems.map((r, index) => {
+                return (
+                  <Card key={index} className="w-auto">
+                    <CardHeader>
+                      <CardTitle className="text-left">{r.title}</CardTitle>
+                      <CardDescription className="text-left space-y-2">
+                        <span className="flex items-center gap-2">
+                          <FaLocationDot />
+                          {r.town}, {r.state}
+                        </span>
+                        <span className="block flex space-x-4">
+                          <span className="flex gap-2 text-sm font-medium leading-none">
+                            <FaBed />
+                            {r.bedrooms} Beds
+                          </span>
+                          <span className="flex gap-2 text-sm font-medium leading-none">
+                            <FaBath />
+                            {r.toilets} Baths
+                          </span>
+                          <span className="flex gap-2 text-sm font-medium leading-none">
+                            <FaCar />
+                            {r.parking_space} Garage
+                          </span>
+                        </span>
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-justify">
+                      Lorem ipsum {r.bathrooms} dolor sit amet consectetur
+                      adipisicing elit. Ipsam quae consequuntur optio ratione
+                      corrupti hic sapiente, unde non nisi magni quaerat magnam
+                      iste rem est, in qui quas minima itaque.
+                    </CardContent>
+                    <CardFooter>
+                      <div className="text-left">
+                        <span className="text-sm">price</span>
+                        <p className="text-sm font-bold leading-none">
+                          &#8358;{r.price}/mo
+                        </p>
+                      </div>
+                    </CardFooter>
+                  </Card>
+                );
+              })}
+          </div>
+
+          <Pagination className="mt-2">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href=""
+                  disabled={currentPage < totalPages && currentPage === 1}
+                  onClick={() => handlePrevPage()}
+                />
+              </PaginationItem>
+
+              <PaginationItem className="flex">
+                {pages.map((page, idx) => (
+                  <PaginationLink
+                    key={idx}
+                    href=""
+                    disabled={currentPage === totalPages}
+                    isActive={currentPage === page}
+                    onClick={handleSinglePage(page)}
+                  >
+                    {page}
+                  </PaginationLink>
+                ))}
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext href="" onClick={() => handleNextPage()} />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </>
+      ) : (
+        <span>loading</span>
+      )}
     </main>
   );
 }
 
-// export async function getStaticProps() {
-//   const res = await fetch('http://localhost:3000/api/estate');
-//   const repo = await res.json()
-//   // console.log(repo);
-//   return { props: { repo } }
-// }
+export async function getStaticProps() {
+  const res = await fetch("http://localhost:3000/api/estate");
+  const houses = await res.json();
+  return { props: { houses } };
+}
