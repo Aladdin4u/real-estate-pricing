@@ -20,15 +20,38 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { FaBath, FaCar, FaBed } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
+import state from "../state.json";
+
+const states = [];
+Object.entries(state).forEach(([key, value]) => {
+  states.push({
+    label: key.toLowerCase(),
+    value: key,
+  });
+});
 
 export default function HousePredict({ className, ...props }) {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState("");
+  const [towns, setTowns] = useState([]);
   const form = useForm({
     defaultValues: {
       bedrooms: 5,
@@ -38,6 +61,7 @@ export default function HousePredict({ className, ...props }) {
       state: "",
     },
   });
+  const selectedState = form.watch("state");
   async function onSubmit(values) {
     const data = await fetch("http://localhost:3000/api/estate", {
       method: "post",
@@ -49,6 +73,16 @@ export default function HousePredict({ className, ...props }) {
     const result = await data.json();
     console.log(values, result);
   }
+
+  useEffect(() => {
+    let newTown = state[selectedState]?.map((state) => {
+      return {
+        label: state.toLowerCase(),
+        value: state,
+      };
+    });
+    setTowns(newTown);
+  }, [selectedState]);
   return (
     <main
       className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
@@ -157,16 +191,64 @@ export default function HousePredict({ className, ...props }) {
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
+                      name="state"
                       rules={{ required: "This field is required" }}
-                      name="town"
                       render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Town</FormLabel>
-                          <FormControl>
-                            <Input placeholder="town" {...field} />
-                          </FormControl>
+                        <FormItem className="flex flex-col">
+                          <FormLabel>State</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  className={cn(
+                                    "w-[200px] justify-between",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                >
+                                  {field.value
+                                    ? states.find(
+                                        (state) => state.value === field.value
+                                      )?.label
+                                    : "Select state"}
+                                  <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[200px] p-0">
+                              <Command>
+                                <CommandInput
+                                  placeholder="Search state..."
+                                  className="h-9"
+                                />
+                                <CommandEmpty>No state found.</CommandEmpty>
+                                <CommandGroup>
+                                  {states.map((state) => (
+                                    <CommandItem
+                                      value={state.label}
+                                      key={state.value}
+                                      onSelect={() => {
+                                        form.setValue("state", state.value);
+                                      }}
+                                    >
+                                      {state.label}
+                                      <CheckIcon
+                                        className={cn(
+                                          "ml-auto h-4 w-4",
+                                          state.value === field.value
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        )}
+                                      />
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
                           <FormDescription>
-                            House Local Goverment Address.
+                            House State Address.
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -174,16 +256,64 @@ export default function HousePredict({ className, ...props }) {
                     />
                     <FormField
                       control={form.control}
-                      name="state"
                       rules={{ required: "This field is required" }}
+                      name="town"
                       render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>State</FormLabel>
-                          <FormControl>
-                            <Input placeholder="State" {...field} />
-                          </FormControl>
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Local Goverment Areas</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  className={cn(
+                                    "w-[200px] justify-between",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                >
+                                  {field.value
+                                    ? towns?.find(
+                                        (town) => town.value === field.value
+                                      )?.label
+                                    : "Select a state L.G.A"}
+                                  <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[200px] p-0">
+                              <Command>
+                                <CommandInput
+                                  placeholder="Search L.G.A..."
+                                  className="h-9"
+                                />
+                                <CommandEmpty>No L.G.A found.</CommandEmpty>
+                                <CommandGroup>
+                                  {towns?.map((town) => (
+                                    <CommandItem
+                                      value={town?.label}
+                                      key={town?.value}
+                                      onSelect={() => {
+                                        form.setValue("town", town.value);
+                                      }}
+                                    >
+                                      {town?.label}
+                                      <CheckIcon
+                                        className={cn(
+                                          "ml-auto h-4 w-4",
+                                          town?.value === field.value
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        )}
+                                      />
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
                           <FormDescription>
-                            House State Address.
+                            House Local Goverment Areas.
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -247,7 +377,7 @@ export default function HousePredict({ className, ...props }) {
               </CardFooter>
             </Card>
             {loading && (
-              <div className="backdrop-blur-sm absolute top-1/2 left-1/2 tranform-x-[50%] inline-flex text-black p-4">
+              <div className="backdrop-blur-sm absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 inline-flex text-black p-4">
                 <svg
                   className="animate-spin -ml-1 mr-3 h-5 w-5"
                   xmlns="http://www.w3.org/2000/svg"

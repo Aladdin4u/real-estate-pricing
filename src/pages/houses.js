@@ -96,7 +96,7 @@ export default function House({ houses, className, ...props }) {
   useEffect(() => {
     setIsClient(true);
   }, []);
-  
+
   return (
     <main
       className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
@@ -193,7 +193,7 @@ export default function House({ houses, className, ...props }) {
                 </PaginationContent>
               </Pagination>
               {loading && (
-                <div className="backdrop-blur-sm absolute top-1/2 left-1/2 tranform-x-[50%] inline-flex text-black p-4">
+                <div className="backdrop-blur-sm absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 inline-flex text-black p-4">
                   <svg
                     className="animate-spin -ml-1 mr-3 h-5 w-5"
                     xmlns="http://www.w3.org/2000/svg"
