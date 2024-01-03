@@ -10,7 +10,7 @@ export default async function handler(req, res) {
         password: process.env.MINDDB_PASS,
       });
 
-      real_estate_model = await MindsDB.Models.getModel(
+      const real_estate_model = await MindsDB.Models.getModel(
         "real_estate_model",
         "mindsdb"
       );
