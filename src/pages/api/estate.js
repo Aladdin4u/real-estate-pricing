@@ -14,10 +14,8 @@ export default async function handler(req, res) {
         "real_estate_model",
         "mindsdb"
       );
-
+      // status: 'complete',
       let queryOptions = {
-        // Join model to this data source.
-        join: "files.real_estate",
         where: [
           `t.state = "${state}"`,
           `t.town = "${town}"`,
@@ -27,7 +25,7 @@ export default async function handler(req, res) {
         ],
       };
 
-      const real_estate_predictor = await real_estate_model.batchQuery(
+      const real_estate_predictor = await real_estate_model.query(
         queryOptions
       );
       res.status(201).json(real_estate_predictor);
