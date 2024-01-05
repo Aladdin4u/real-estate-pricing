@@ -14,7 +14,9 @@ export default async function handler(req, res) {
         "real_estate_model",
         "mindsdb"
       );
-      // status: 'complete',
+      if (real_estate_model.status !== "complete") {
+        return res.status(500).json({message: "server error"})
+      };
       let queryOptions = {
         where: [
           `t.state = "${state}"`,
@@ -45,6 +47,23 @@ export default async function handler(req, res) {
         password: process.env.MINDDB_PASS,
       });
 
+      const real_estate_model = await MindsDB.Models.getModel(
+        "real_estate_model",
+        "mindsdb"
+      );
+
+      if (real_estate_model.status !== "complete") {
+        return res.status(500).json({ message: "server error" });
+      }
+      let queryOptions = {
+        // Join model to this data source.
+        join: "files.real_estate",
+        limit: 100,
+      };
+      const real_estate_predictor = await real_estate_model.batchQuery(queryOptions);
+      res.status(201).json(real_estate_predictor);
+      return
+      // res.json(real_estate_predictor)
       const queryResult = await MindsDB.SQL.runQuery(query);
       const countResult = await MindsDB.SQL.runQuery(count);
 

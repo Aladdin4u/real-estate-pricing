@@ -30,67 +30,35 @@ export default function House({ houses, className, ...props }) {
   const [data, setData] = useState(houses);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(9);
-  const totalPages = Math.ceil(data?.totals[0].count / itemsPerPage);
-  const currentItems = data?.rows;
-
+  const totalPages = Math.ceil(data.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentItems = data.slice(startIndex, endIndex);
+  console.log(data);
   let pages = [];
   for (let i = 1; i <= 5; i++) {
     pages.push(i);
   }
-  const handleNextPage = async (e) => {
+  const handleNextPage = (e) => {
     e.preventDefault();
     if (currentPage < totalPages) {
-      setLoading(true);
-      const pageNumber = currentPage + 1;
-      try {
-        const datas = await fetch(
-          `http://localhost:3000/api/estate?page=${pageNumber}`
-        );
-        const result = await datas.json();
-        setData(result);
-        setCurrentPage(currentPage + 1);
-        console.log(data);
-      } catch (error) {
-        throw error;
-      } finally {
-        setLoading(false);
-      }
+      setCurrentPage(currentPage + 1);
+      document.documentElement.scrollTop = 0;
     }
   };
 
   const handlePrevPage = async (e) => {
     e.preventDefault();
     if (currentPage > 1) {
-      setLoading(true);
-      const pageNumber = currentPage - 1;
-      try {
-        const data = await fetch(
-          `http://localhost:3000/api/estate?page=${pageNumber}`
-        );
-        const result = await data.json();
-        setData(result);
-        setCurrentPage(currentPage - 1);
-      } catch (error) {
-        throw error;
-      } finally {
-        setLoading(false);
-      }
+      setCurrentPage(currentPage - 1);
+      document.documentElement.scrollTop = 0;
     }
   };
 
   const handleSinglePage = async (e, page) => {
     e.preventDefault();
-    try {
-      setLoading(true);
-      const data = await fetch(`http://localhost:3000/api/estate?page=${page}`);
-      const result = await data.json();
-      setData(result);
-      setCurrentPage(page);
-    } catch (error) {
-      throw error;
-    } finally {
-      setLoading(false);
-    }
+    setCurrentPage(page);
+    document.documentElement.scrollTop = 0;
   };
 
   useEffect(() => {
@@ -99,7 +67,7 @@ export default function House({ houses, className, ...props }) {
 
   return (
     <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
+      className={`flex min-h-screen flex-col items-center justify-between p-14 scroll-smooth ${inter.className}`}
     >
       {isClient ? (
         <>
@@ -115,40 +83,52 @@ export default function House({ houses, className, ...props }) {
                     return (
                       <Card key={index} className="w-auto">
                         <CardHeader>
-                          <CardTitle className="text-left">{r.title}</CardTitle>
+                          <CardTitle className="text-left">
+                            {r.data.title}
+                          </CardTitle>
                           <CardDescription className="text-left space-y-2">
                             <span className="flex items-center gap-2">
                               <FaLocationDot />
-                              {r.town}, {r.state}
+                              {r.data.town}, {r.data.state}
                             </span>
                             <span className="block flex space-x-4">
                               <span className="flex gap-2 text-sm font-medium leading-none">
                                 <FaBed />
-                                {r.bedrooms} Beds
+                                {r.data.bedrooms} Beds
                               </span>
                               <span className="flex gap-2 text-sm font-medium leading-none">
                                 <FaBath />
-                                {r.toilets} Baths
+                                {r.data.toilets} Baths
                               </span>
                               <span className="flex gap-2 text-sm font-medium leading-none">
                                 <FaCar />
-                                {r.parking_space} Garage
+                                {r.data.parking_space} Garage
                               </span>
                             </span>
                           </CardDescription>
                         </CardHeader>
                         <CardContent className="text-justify">
-                          Lorem ipsum {r.bathrooms} dolor sit amet consectetur
-                          adipisicing elit. Ipsam quae consequuntur optio
-                          ratione corrupti hic sapiente, unde non nisi magni
-                          quaerat magnam iste rem est, in qui quas minima
-                          itaque.
+                          Welcome to {r.data.title}, a lavish {r.data.bedrooms}{" "}
+                          bedrooms, {r.data.bathrooms} bathroom home in {r.data.town}, {r.data.state}. This luxury residence
+                          features {r.data.toilets} toilets, {r.data.parking_space} parking spaces, and a stunning
+                          design with top-notch finishes. The master suite
+                          offers a private sanctuary, while the gourmet kitchen
+                          and spacious living areas make entertaining a breeze.
+                          Conveniently located, this home combines opulence with
+                          practicality, ensuring a sophisticated lifestyle in
+                          the heart of {r.data.state}.
                         </CardContent>
-                        <CardFooter>
+                        <CardFooter className="flex justify-between items-center">
                           <div className="text-left">
-                            <span className="text-sm">price</span>
+                            <span className="text-sm">Price</span>
                             <p className="text-sm font-bold leading-none">
-                              &#8358;{r.price}/mo
+                              &#8358;{r.data.price_original}
+                            </p>
+                          </div>
+                          <div className="text-left text-green-500">
+                            <span className="text-sm">Predicted Price</span>
+                            <p className="text-sm font-bold leading-none">
+                              &#8358;{r.data.price}
                             </p>
                           </div>
                         </CardFooter>
