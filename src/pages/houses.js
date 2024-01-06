@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
-import Image from "next/image";
+import { useState, useEffect } from "react";
 import { Inter } from "next/font/google";
 import {
   Card,
@@ -19,14 +18,12 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 const inter = Inter({ subsets: ["latin"] });
-import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { FaBath, FaCar, FaBed } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
 
 export default function House({ houses, className, ...props }) {
   const [isClient, setIsClient] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [data, setData] = useState(houses);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(9);
@@ -72,7 +69,7 @@ export default function House({ houses, className, ...props }) {
       {isClient ? (
         <>
           {currentItems.length > 1 && (
-            <div className="relative">
+            <div>
               <h2 className="my-4 self-start text-2xl font-medium">
                 Best for you
               </h2>
@@ -172,31 +169,6 @@ export default function House({ houses, className, ...props }) {
                   </PaginationItem>
                 </PaginationContent>
               </Pagination>
-              {loading && (
-                <div className="backdrop-blur-sm absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 inline-flex text-black p-4">
-                  <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Loading...
-                </div>
-              )}
             </div>
           )}
         </>

@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
-import Image from "next/image";
+import { useState, useEffect } from "react";
 import { Inter } from "next/font/google";
 import { cn } from "@/lib/utils";
 import {
@@ -36,8 +35,6 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
-import { FaBath, FaCar, FaBed } from "react-icons/fa";
-import { FaLocationDot } from "react-icons/fa6";
 import state from "../state.json";
 
 const states = [];
@@ -49,22 +46,22 @@ Object.entries(state).forEach(([key, value]) => {
 });
 
 export default function HousePredict({ className, ...props }) {
-  const [loading, setLoading] = useState(false);
   const [data, setData] = useState(undefined);
   const [towns, setTowns] = useState([]);
   const form = useForm({
     defaultValues: {
       bedrooms: 5,
       toilets: 6,
-      parking_space: 5,
+      parking_space: 2,
       town: "",
       state: "",
     },
   });
+  const loading = form.formState.isLoading;
+  const error = form.formState.errors;
   const selectedState = form.watch("state");
   async function onSubmit(values) {
     try {
-      setLoading(true);
       setData(undefined);
       const data = await fetch("http://localhost:3000/api/estate", {
         method: "post",
@@ -78,7 +75,7 @@ export default function HousePredict({ className, ...props }) {
     } catch (error) {
       console.log(error);
     } finally {
-      setLoading(false);
+      console.log("completed!");
     }
   }
 
@@ -93,7 +90,7 @@ export default function HousePredict({ className, ...props }) {
   }, [selectedState]);
   return (
     <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
+      className={`flex min-h-screen flex-col items-center justify-between p-14 ${inter.className}`}
     >
       <Card className={cn("w-md", className)} {...props}>
         <CardHeader>
@@ -109,7 +106,7 @@ export default function HousePredict({ className, ...props }) {
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-8"
               >
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     rules={{
@@ -165,7 +162,7 @@ export default function HousePredict({ className, ...props }) {
                     )}
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     rules={{
@@ -195,8 +192,10 @@ export default function HousePredict({ className, ...props }) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <h2>Address</h2>
-                  <div className="grid grid-cols-2 gap-4">
+                  <h2 className="border-gray-900 border-b-2 w-5 mb-4">
+                    Address
+                  </h2>
+                  <div className="grid md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="state"
@@ -284,7 +283,9 @@ export default function HousePredict({ className, ...props }) {
                                     ? towns?.find(
                                         (town) => town.value === field.value
                                       )?.label
-                                    : "Select a state L.G.A"}
+                                    : towns === undefined
+                                    ? "Please select a state"
+                                    : "Select a L.G.A"}
                                   <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>
                               </FormControl>
@@ -368,6 +369,11 @@ export default function HousePredict({ className, ...props }) {
                 &#8358;{data}/mo
               </p>
             </div>
+          )}
+          {error && (
+            <p className="text-red-500 bg-red-200 text-center p-2 rounded-md">
+              Internal Server Error. Please check your network and try again.
+            </p>
           )}
         </CardContent>
         <CardFooter>&copy; Real Estate Rental Price</CardFooter>
