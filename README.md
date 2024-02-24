@@ -5,7 +5,7 @@ A web based application to predict house rent price in Nigeria.
 
 ![real-estate](/public/images/home.jpg)
 
-## How It's Made:
+## How It's Made
 
 **Tech used:** <p>![NEXTJS BADGE](https://img.shields.io/static/v1?label=|&message=NEXTJS&color=23555f&style=plastic&logo=nextjs) ![TAILWINDCSS BADGE](https://img.shields.io/static/v1?label=%7C&message=TAILWINDCSS&color=285f65&style=plastic&logo=tailwindcss) ![MINDSDB BADGE](https://img.shields.io/static/v1?label=|&message=MINDSDB&color=3c7f5d&style=plastic&logo=mongodb)</p>
 
@@ -13,16 +13,26 @@ A web based application to predict house rent price in Nigeria.
 
 One of the first thing I would do improve the architectures and design patterns to increase reusability and maintainability and constant refacturing of the code.
 
-## Lessons Learned:
+## Lessons Learned
 
 Trainning a model to leverage historical property data, features like location, square footage, number of bedrooms, parking space and local amenities to predict house prices.
 
-## Installation:
+## Environment Variable
+
+Enter your mindsdb info inside the .env file
+
+```env
+MINDDB_USER=""
+MINDDB_PASS=""
+```
+
+## Installation
 
 1. Clone repo
 1. run `npm intall`
+1. cp .env.example .env
 
-## Usage:
+## Usage
 
 1. run `npm run dev`
-
+1. navigate to https://localhost:3000
